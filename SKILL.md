@@ -30,7 +30,7 @@ description: 'Use when someone wants to install or repair SideStore / LiveContai
    ```
    Anisette 服务器选带 **Windows ADI** 字样的那一项，并**关闭自动轮换服务器**。
 5. **登录**：输入 Apple ID/密码 → 手机弹「Apple Account Sign In Requested」→ Allow → 验证码**必须用受信任设备生成**（设置 → 你的名字 → 登录与安全 → 获取验证码；短信验证码在苹果侧已失效）。
-6. **配对文件**：iOS 17+ 需要 `ALTPairingFile.mobiledevicepairing` 出现在 App 的 `Documents/`。iLoader 会自动放入；否则让 App 里点 `Select File` 选中它。
+6. **配对文件**：iOS 17+ 需要 `ALTPairingFile.mobiledevicepairing` 出现在 App 的 `Documents/`。装「SideStore / LC+SS」这类预设目标时 iLoader 会顺带放入；**用「导入 IPA」安装的 App 可能没有** —— 那就用 iLoader 的「管理配对文件」或从电脑侧写入，再在 App 里点 `Select File` 选中它。
 7. **设备注册**：Settings 里若有黄色警告，点 Continue 完成「Register Device」（**必须连 Wi-Fi**）。
 8. **日常续签**：Wi-Fi + LocalDevVPN → SideStore → My Apps → 下拉刷新；可做成快捷指令（动作名 **`Refresh All Apps`**，后台静默运行，建议每 6 天一次 + 「立即运行」）。
 
@@ -40,7 +40,7 @@ description: 'Use when someone wants to install or repair SideStore / LiveContai
 |---|---|---|
 | `isn't in the correct format` / 响应是 HTML `503` | 苹果拒绝 **Android/Pixel 身份** | 改成上面的 Windows 身份 |
 | `-80045` | anisette 身份与服务器**不匹配** | 服务器与身份配套：客户端声明 Windows，服务器就必须给 Windows ADI 数据 |
-| `-22411`（密码后立刻，验证码已到手机） | anisette 已通过，**客户端缺 2FA 新响应处理** | 用 SideStore **nightly ≥ 0.7.0-20261013**；旧构建（如 LC+SS 3.8.0 内置的 0.6.4 / 20260918）必然失败 |
+| `-22411`（密码后立刻，验证码已到手机） | anisette 已通过，**客户端缺 2FA 新响应处理** | 用 SideStore **nightly ≥ 0.7.0-20261013**；更早的构建（`0.6.4`、`0.7.0-20260911`、LC+SS 组合包内置的 `20260918`）缺此修复 |
 | `Pairing Required: No valid pairing file has been loaded` | 容器缺配对文件 | 放入 `ALTPairingFile.mobiledevicepairing`（rppairing，字段 `alt_irk/identifier/private_key/public_key`） |
 | `Network Connection Error: No wifi interface satisfied` | 无 Wi-Fi 接口 | 打开 Wi-Fi；`10.7.0.1` 探测不通则说明 LocalDevVPN 没连 |
 | 反复失败 | 苹果风控 | **停止重试**（会触发限流甚至锁号），隔 2-3 分钟或换网络/账号 |
@@ -50,7 +50,7 @@ description: 'Use when someone wants to install or repair SideStore / LiveContai
 
 ## 版本与名额（必须向用户交代清楚）
 
-- 免费 Apple ID：**同时最多 3 个 App**（含 SideStore 自己）、**每 7 天 10 个 App ID**、签名 **7 天**过期。
+- 免费 Apple ID：**同时最多 3 个 App**（含 SideStore 自己）、签名 **7 天**过期；「每 7 天 10 个 App ID」为社区长期经验值（官方未明文承诺），重装同一 App 也会消耗。
 - 想要更多 App：装进 **LiveContainer**（不占名额），但需从 SideStore 导入一次证书，且容器内 App **无推送**。
 - TrollStore：**仅 ≤ iOS 17.0**；17.0.1+ 永远不会支持（CoreTrust 已修）。TrollStore Lite 需越狱，越狱现状见仓库 `docs/04-device-support.md`。
 

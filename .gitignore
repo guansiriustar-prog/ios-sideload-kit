@@ -14,6 +14,8 @@ logs/
 *.log
 dump/
 verify/
+__pycache__/
+*.pyc
 
 # 本地产物（含设备信息，切勿提交）
 *.plist

@@ -20,6 +20,8 @@ gh repo create ios-sideload-kit --public --source=. --remote=origin --push
 
 把 `--public` 换成 `--private` 即为私有仓库。
 
+> 发布前请替换 [LICENSE](LICENSE) 第 3 行的 `<在此填写你的名字或 GitHub 用户名>` —— 填昵称即可，不必写真名。
+
 ## 二、后续更新
 
 ```bash

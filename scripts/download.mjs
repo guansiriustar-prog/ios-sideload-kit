@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 /**
- * 下载 iOS 侧载所需组件，并用 GitHub 官方公布的 SHA256 逐一校验。
+ * 下载 iOS 侧载所需组件，并逐一校验 SHA256。
  *
  * 用法:
  *   node download.mjs [输出目录]          # 默认 ./downloads
  *   KIT_DOWNLOAD_DIR=D:\ios node download.mjs
  *
+ * 校验策略：
+ *   - 固定版本（msi / 3.8.0 / StikDebug 等）：使用下面写死的官方 digest；
+ *   - 滚动通道（nightly）：运行时先问 GitHub API 要当次构建的 digest，
+ *     取不到时退回下面这个「已实测可用」的固定值（会打印提示）。
+ *
  * 已存在且校验通过的文件会自动跳过（可反复运行做断点续传 / 完整性复查）。
- * 注意：脚本用 Node 自带的 OpenSSL 栈下载，不依赖 Windows schannel，
- *       因此在某些受限环境下比 PowerShell/curl 更可靠。
+ * 说明：用 Node 自带的 OpenSSL 栈下载，不依赖 Windows schannel，在受限环境下比 PowerShell/curl 更可靠。
  */
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile, stat } from 'node:fs/promises';
@@ -16,7 +20,7 @@ import { dirname, join, resolve } from 'node:path';
 
 const OUT_ROOT = resolve(process.argv[2] || process.env.KIT_DOWNLOAD_DIR || './downloads');
 
-/** 版本可能更新：更新时请从各项目 GitHub Release 页面复制新的 digest */
+/** 版本更新时：从各项目 GitHub Release 页面（或 API 的 assets[].digest）复制新的哈希 */
 const ITEMS = [
   {
     name: 'iLoader v2.3.8 (Windows x64 MSI)',
@@ -37,10 +41,11 @@ const ITEMS = [
     sha256: '97dc0fd2202fd4460efcab389943b8d5fdbb4988efff76b116b92b84a4662425',
   },
   {
-    // 含 SideSign 2FA 修复（解决 -22411），2026-10-13 构建
-    name: 'SideStore nightly 0.7.0-20261013（含 2FA 修复）',
+    name: 'SideStore nightly（含 2FA 修复，滚动更新）',
     url: 'https://github.com/SideStore/SideStore/releases/download/nightly/SideStore.ipa',
-    out: join(OUT_ROOT, 'ipa', 'SideStore-nightly-0.7.0-20261013.ipa'),
+    out: join(OUT_ROOT, 'ipa', 'SideStore-nightly.ipa'),
+    rolling: { repo: 'SideStore/SideStore', tag: 'nightly', asset: 'SideStore.ipa' },
+    // 兜底值：2026-10-13 构建，实测可完成登录（含 SideSign 2FA 修复）
     sha256: 'b082a52e2b1949200caeaba9a72767004a99c850b5bcbe964b6edf076535d4ac',
   },
   {
@@ -52,6 +57,30 @@ const ITEMS = [
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** 滚动通道：从 GitHub API 取当次构建的 digest（形如 "sha256:abcd…"） */
+async function resolveRollingDigest(item) {
+  const { repo, tag, asset } = item.rolling;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/releases/tags/${tag}`, {
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'ios-sideload-kit' },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rel = await res.json();
+    const found = (rel.assets || []).find((a) => a.name === asset);
+    const digest = found?.digest?.replace(/^sha256:/, '');
+    if (digest) {
+      console.log(`[滚动通道] ${repo}@${tag} 当前 digest: ${digest}`);
+      console.log(`           构建于 ${rel.published_at || rel.created_at}`);
+      return digest;
+    }
+    console.log('[滚动通道] API 未提供 digest，改用固定兜底值');
+  } catch (err) {
+    console.log(`[滚动通道] 取 digest 失败（${err.message}），改用固定兜底值`);
+  }
+  return item.sha256;
+}
 
 async function sha256Of(file) {
   try {
@@ -85,8 +114,13 @@ async function downloadWithRetry(item, attempts = 5) {
 }
 
 console.log(`输出目录: ${OUT_ROOT}`);
-const failed = [];
 
+// 先解析滚动通道的期望哈希
+for (const item of ITEMS) {
+  if (item.rolling) item.sha256 = await resolveRollingDigest(item);
+}
+
+const failed = [];
 for (const item of ITEMS) {
   if (item.sha256 && (await sha256Of(item.out)) === item.sha256) {
     console.log(`[跳过] ${item.name}（已存在且校验通过）`);

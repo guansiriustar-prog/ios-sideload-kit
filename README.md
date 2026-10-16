@@ -76,7 +76,7 @@ Anisette 服务器选 **Windows ADI** 那一类（`SideStore (Windows ADI)` 或 
 
 | 报错 | 真正含义 | 解决 |
 |---|---|---|
-| `503` / `The data couldn't be read because it isn't in the correct format` | 苹果**拒绝 Android/Pixel 身份的 anisette**（返回 HTML 错误页而非 JSON） | 换成 Windows 身份 |
+| `503` / `The data couldn't be read because it isn't in the correct format` | 苹果**拒绝 Android/Pixel 身份的 anisette**（返回 HTML 错误页而非 JSON）；若客户端 ≤ `0.6.4`，也可能是**版本过旧** | 换成 Windows 身份；并升级到 nightly ≥ `0.7.0-20261013` |
 | `-80045` / `This action cannot be completed at this time` | anisette 身份与 `client_info` **不匹配**（例如声称 Windows、服务器却给 Mac 数据） | **服务器与身份配套**（见上文） |
 | `-22411`（输完密码立刻出现，手机已收到验证码） | anisette **已通过**，客户端不认识苹果"自动推送 2FA 码"的新响应 | 换 **SideStore nightly ≥ 0.7.0-20261013**（含 SideSign 2FA 修复） |
 

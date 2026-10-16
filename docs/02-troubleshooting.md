@@ -17,7 +17,10 @@
 | 10-13 | SideSign 合并「修复 2FA」提交 → SideStore **nightly 0.7.0-20261013** 起支持苹果新的 2FA 响应 | 解决 `-22411` |
 | 10-15 | iLoader 2.3.8 / isideload 0.4.6 采用 Windows 方案（所以**电脑端一直是好的**） | — |
 
-**推论**：只要客户端身份是 Mac/Android，或客户端的 2FA 处理逻辑是旧的，登录就必然失败 —— 与你密码对不对、网络快不快无关。
+> 另外，**2026-09 还有一次接口变更**：SideStore 官方 `0.7.0-alpha` 的发布说明写着「changes from apple server side which broke **0.6.4 and prior** versions」。
+> 所以出现 503 / 格式错误时，除了「身份是 Android」，**还要怀疑「客户端版本 ≤ 0.6.4 太旧」** —— 两个成因当时是先后叠加的。
+
+**推论**：只要客户端身份是 Mac/Android，或客户端的版本/2FA 处理逻辑落后，登录就会失败 —— 与你密码对不对、网络快不快无关。
 
 ---
 
@@ -85,13 +88,15 @@
 - **解决**：① 打开 Wi-Fi 连上任意网络；② 打开 **LocalDevVPN 并连接**（状态栏出现 VPN）；③ 再点 Retry。
 - **验证**：日志里出现 `tcpProbe 10.7.0.1:49152 (protocol: .rppairing) -> reachable`（`10.7.0.1` 是 LocalDevVPN 的地址）。
 
-### ⑧ 组合包（LiveContainer + SideStore）里内置的 SideStore 永远登不上
+### ⑧ 组合包（LiveContainer + SideStore）里内置的 SideStore 登录困难
 
-- **现象**：独立版 SideStore 能登，但 LiveContainer 里那个内置 SideStore 同样报错。
-- **判定**：LC+SS 组合包内置的 SideStore 版本由 LiveContainer 决定，本次是 **`0.7.0-20260918`（9/18）**，缺 10/13 的 2FA 修复 → 卡在 `-22411`，**改配置救不了**。
-- **解决**（两条都行）：
-  1. **不需要登录它**：证书其实已经在里面了（偏好里有 `importedCertificateSerials`），直接在 LiveContainer → Settings → **Import Certificate From Store** 导入即可；
-  2. 用**独立版 SideStore** 承担登录、安装、刷新，LiveContainer 只当容器。
+- **现象**：独立版 SideStore 能登，但 LiveContainer 里那个内置 SideStore 报同样的错。
+- **判定**（本次实测到两条，按可能性排序）：
+  1. **配置问题**：它的 `menuAnisetteURL` 可能是 `https://ani.sidestore.app`（Mac/Android 身份），而你填的 `Client Info` 是 Windows → **身份与服务器不匹配** → `-80045`。这条**可以修**（用「黄金配置」改它的偏好即可）。
+  2. **版本问题**：组合包内置的 SideStore 版本由 LiveContainer 决定，本次是 **`0.7.0-20260918`（9/18 构建）**，早于 10/13 的 2FA 修复。**若改完配置后仍报 `-22411`**，就是这一条 —— 改配置无效，只能等 LiveContainer 更新内置版本。
+- **建议**（更省事也更稳）：
+  1. **根本不必登录它**：证书已经由 iLoader 注入在里面（偏好里有 `importedCertificateSerials`、`certMetadata_*`），直接 **LiveContainer → Settings → Import Certificate From Store** 导入即可；
+  2. 让**独立版 SideStore**（nightly ≥ 20261013）承担登录、安装、刷新，LiveContainer 只当容器 —— 本文推荐的就是这个架构。
 
 ---
 

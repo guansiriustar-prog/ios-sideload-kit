@@ -1,6 +1,6 @@
 # scripts · 可复用脚本
 
-四个小工具，覆盖"下载 → 校验 → 诊断"三件事。全部只用 **Node.js 内置模块** 或 **Python 标准库**，无需 `npm install` / `pip install`。
+五个小工具，覆盖"下载 → 校验 → 诊断"三件事。全部只用 **Node.js 内置模块** 或 **Python 标准库**，无需 `npm install` / `pip install`。
 
 | 脚本 | 用途 | 依赖 |
 |---|---|---|

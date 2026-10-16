@@ -23,7 +23,8 @@
 - macOS：`.dmg`
 - Linux：`.AppImage` / `.deb` / `.rpm`
 
-> Windows 若提示缺少驱动：装 Apple 官网版 **iTunes**（**不要**用 Microsoft Store 版，它不带 usbmuxd 驱动）。
+> Windows 若 iLoader 检测不到手机：安装 **iTunes / Apple 设备驱动**（提供 usbmuxd）。
+> 本次实测中，iCloud 附带的 `Apple Mobile Device Support` 已足够，**无需额外安装 iTunes**；只有检测不到设备时再装。
 
 ## 2. 电脑侧：用 iLoader 安装
 
@@ -35,7 +36,8 @@
    - 只想简单用 → 点 **「SideStore」**，或点 **「导入 IPA」** 选择 `SideStore-nightly-<日期>.ipa`
 5. 等待出现 **「✅ 签名并安装应用 / 操作完成」**
 
-> iLoader 会自动完成两件关键事：把签名证书注入 App；把 iOS 17+ 需要的配对文件放进 App 容器。
+> iLoader 在安装「SideStore / LC+SS」这类预设目标时会顺带完成两件事：注入签名证书、放入 iOS 17+ 需要的配对文件。
+> **但用「导入 IPA」安装其它 App（例如独立版 SideStore）时可能不放配对文件** —— 本次就遇到了，需要手工补齐（见 [02 · 排错](02-troubleshooting.md) 第 ⑥ 条）。
 
 ## 3. 手机侧：信任与开发者模式
 

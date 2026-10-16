@@ -12,7 +12,7 @@
 | **SideStore** | **iOS 15.0 及以上**（实测 26.0.1 通过；官方文档写 15.0+） | 所有能装 iOS 15 的 iPhone / iPad | 免费 Apple ID 即可；需要 Wi-Fi + 本地回环 VPN |
 | **LiveContainer** | **iOS 15.0 及以上**（3.8.x，`MinimumOSVersion = 15.0`；实测 26.0.1 通过） | 同上 | 容器方案；需从 SideStore 导入证书 |
 | **StikDebug**（JIT） | **iOS 17.4 及以上**（26.x 官方标注 Supported，但部分 App 需自行适配） | 同上 | 已被 App Store 下架，需用 IPA 侧载 |
-| **LocalDevVPN** | iOS 16 及以上（App Store 上架版） | 同上 | SideStore 刷新/安装的必需品 |
+| **LocalDevVPN** | **iOS 18.0 及以上**（实测 1.3.0 的 `MinimumOSVersion = 18.0`） | 同上 | SideStore 刷新/安装的必需品；低版本系统需另找回环 VPN 方案 |
 
 > 越新的系统**不会**更容易失败：侧载不依赖系统漏洞，依赖的是你自己的开发者证书。真正会"卡死登录"的是**苹果服务端的接口变更**（见 [02 · 排错](02-troubleshooting.md)）。
 
@@ -30,12 +30,15 @@
 
 **结论：iOS 17.0.1 及以上永远装不了原版 TrollStore。**
 
-| iOS 版本 | 原版 TrollStore | 原因 |
+| iOS 版本 | 原版 TrollStore | 说明 |
 |---|---|---|
-| 14.0 – 16.6.1 | ✅ 支持（分 arm64 / arm64e 不同安装方式） | CoreTrust 漏洞存在 |
-| 16.7 – 16.7.2 | ❌ 不支持 | 两个 CoreTrust 漏洞均已修复 |
-| **17.0** | ✅ 支持 | 第二个 CoreTrust 漏洞仍在 |
-| **17.0.1 及更新（含 iOS 18 / 26 全系）** | ❌ **永远不支持** | CoreTrust 已修，除非苹果第三次出错 |
+| 14.0 – 14.8.1 | ✅ | arm64 走 checkra1n + TrollHelper；arm64e 走 TrollHelperOTA |
+| 15.0 – 15.4.1、15.5 beta1-4、15.6 beta1-5 | ✅ | TrollHelperOTA |
+| 15.5 正式版、15.6 – 16.5 | ⏳ 官方表标 "Coming Soon" | 等新 CoreTrust 漏洞的适配 |
+| 16.5.1 – 16.6.1 | ⏳ / ❌ | arm64 标 Coming Soon；**arm64e 无安装方法** |
+| 16.7 – 16.7.2 | ❌ | 两个 CoreTrust 漏洞均已修复 |
+| 17.0 | ⏳ / ❌ | arm64 标 Coming Soon；arm64e 无安装方法 |
+| **17.0.1 及更新（含 iOS 18 / 26 全系）** | ❌ **永久不支持** | CoreTrust 已修，除非苹果第三次出错 |
 
 **TrollStore Lite**：同作者的"越狱版巨魔前端"（Havoc 源，声明支持 iOS 14.0 – 26.0.1），但它**必须先越狱**才能用。
 
