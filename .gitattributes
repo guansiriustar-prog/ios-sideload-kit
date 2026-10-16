@@ -1,0 +1,9 @@
+# 统一换行符，避免 Windows/macOS 协作者产生整文件 diff
+* text=auto eol=lf
+
+# 二进制/资源类不做换行转换
+*.png binary
+*.jpg binary
+*.ipa binary
+*.zip binary
+*.msi binary

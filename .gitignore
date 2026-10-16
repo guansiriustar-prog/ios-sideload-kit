@@ -1,0 +1,28 @@
+# 下载的安装包：体积大且随时可能更新，请用 scripts/download.mjs 从官方源获取
+downloads/
+*.ipa
+*.msi
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+*.zip
+
+# 运行产物 / 临时文件
+tmp/
+logs/
+*.log
+dump/
+verify/
+
+# 本地产物（含设备信息，切勿提交）
+*.plist
+*.p12
+*.mobileprovision
+*.mobiledevicepairing
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
